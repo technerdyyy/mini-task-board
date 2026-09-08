@@ -88,6 +88,31 @@ app.post('/update-task', (req, res) => {
     })
 }
 )
+
+app.post('/delete-task', (req, res) => {
+    console.log(req.body);
+    const q = "delete from tasks where id = ?";
+    db.query(q,  [req.body.id], (err, result)=> {
+        if(err){
+            console.log("error deleting task: ", err);
+          
+        } else {
+            console.log("task deleted successfully");
+           
+            db.query("select * from tasks", (err, result) => {
+                if(err){
+                    console.log("error reading tasks: ", err);
+                    
+                } else {
+                    console.log("tasks read successfully");
+             
+                    res.send(result);
+                }
+            })
+ 
+        }
+    })
+})
 app.listen(5000, () => {
   console.log('Server is running on port 5000');
 });

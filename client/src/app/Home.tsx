@@ -59,6 +59,14 @@ export default function Home() {
       console.error("failed to update task:", err);
     });
   }
+
+  const handleDelete = (id: number) => {
+    axios.post('http://localhost:5000/delete-task', { id }).then(res => {
+      setTodos(Array.isArray(res.data) ? res.data : []);
+    }).catch((err) => {
+      console.error("failed to delete task:", err);
+    });
+  }
   return <div className=" w-screen h-screen">
     <div className="flex flex-col w-screen h-screen justify-center items-center">
       <div>
@@ -82,7 +90,7 @@ export default function Home() {
     </div>
     <div className="flex flex-col gap-2 justify-start items-start ">
       <button  onClick={() => handleEdit(todo.id, todo.title)} className="text-yellow-500 cursor-pointer">Edit</button>
-      <button className="text-red-500 cursor-pointer">Delete</button>
+      <button className="text-red-500 cursor-pointer" onClick={() => handleDelete(todo.id)}>Delete</button>
       <button className="text-green-500 cursor-pointer">Done</button>
     </div>
     </div>
