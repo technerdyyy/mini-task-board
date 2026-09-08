@@ -1,9 +1,11 @@
 "use client";
-import { useState } from "react";
+import axios from "axios";
+import { useState,useEffect } from "react";
 
 export default function Home() {
   const [tab, setTab] = useState(1);
   const [task, setTask] = useState(null);
+  const [todos, setTodos] = useState(null);
   const handleTabs = (tab: number) => {
     setTab(tab);
     // console.log(tab);
@@ -11,8 +13,17 @@ export default function Home() {
 
   const handleAddTask = (e)=> {
     e.preventDefault();
+    axios.post('http://localhost:5000/new-task', { task })
     // console.log(task);
   }
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/read-tasks').then((res) => {
+      // console.log(res.data);
+      setTodos(res.data);
+    })
+
+  },[])
   return <div className=" w-screen h-screen">
     <div className="flex flex-col w-screen h-screen justify-center items-center">
       <div>
@@ -27,11 +38,12 @@ export default function Home() {
       <p onClick={() => handleTabs(2)} className={`${tab === 2 ? "text-white" : "text-gray-500"} cursor-pointer`}>In Progress</p>
       <p onClick={() => handleTabs(3)} className={`${tab === 3 ? "text-white" : "text-gray-500"} cursor-pointer`}>Done</p>
     </div>
-    <div className="flex justify-between flex-row gap-4 mt-4 border border-gray-100 p-3 rounded-md w-80">
+    {todos?.map(todo =>(
+<div className="flex justify-between flex-row gap-4 mt-4 border border-gray-100 p-3 rounded-md w-80">
     <div>
-      <p className="text-lg font-semibold">Buy rice</p>
-      <p className="text-sm text-gray-500">Due: Today</p>
-      <p className="text-sm text-gray-500">Status: Active</p>
+      <p className="text-lg font-semibold">{todo.title}</p>
+      <p className="text-sm text-gray-500">{new Date(todo.created_at).toLocaleDateString()}</p>
+      <p className="text-sm text-gray-500">Status: {todo.status}</p>
     </div>
     <div className="flex flex-col gap-2 justify-start items-start ">
       <button className="text-yellow-500 cursor-pointer">Edit</button>
@@ -39,6 +51,8 @@ export default function Home() {
       <button className="text-green-500 cursor-pointer">Done</button>
     </div>
     </div>
+    ))}
+   
     </div>
   </div>;
 }
