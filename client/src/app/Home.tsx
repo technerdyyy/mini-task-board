@@ -20,7 +20,7 @@ export default function Home() {
     // console.log(tab);
   }
 
-  const handleAddTask = (e)=> {
+  const handleAddTask = (e: { preventDefault: () => void; })=> {
     e.preventDefault();
     axios.post('http://localhost:5000/new-task', { task }).then(res => {
       // console.log(res.data);
@@ -48,7 +48,7 @@ export default function Home() {
     setTask(title);
     setUpdateId(id);
   }
-  const handleUpdateTask = (e) => {
+  const handleUpdateTask = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     axios.post('http://localhost:5000/update-task', { updateId, updatedTask: task }).then(res => {
       setTodos(Array.isArray(res.data) ? res.data : []);
@@ -67,6 +67,18 @@ export default function Home() {
       console.error("failed to delete task:", err);
     });
   }
+
+  const handleStatus = (id: number, status: string) => {
+    axios.post('http://localhost:5000/update-status', { id, status }).then(res => {
+      setTodos(Array.isArray(res.data) ? res.data : []);
+    }).catch((err) => {
+      console.error("failed to update status:", err);
+    });
+  }
+
+  const tabStatus = tab === 1 ? "Todo" : tab === 2 ? "In Progress" : "Done";
+  const visibleTodos = todos.filter(todo => todo.status === tabStatus);
+
   return <div className=" w-screen h-screen">
     <div className="flex flex-col w-screen h-screen justify-center items-center">
       <div>
@@ -81,7 +93,7 @@ export default function Home() {
       <p onClick={() => handleTabs(2)} className={`${tab === 2 ? "text-white" : "text-gray-500"} cursor-pointer`}>In Progress</p>
       <p onClick={() => handleTabs(3)} className={`${tab === 3 ? "text-white" : "text-gray-500"} cursor-pointer`}>Done</p>
     </div>
-    {todos.map(todo =>(
+    {visibleTodos.map(todo =>(
 <div key={todo.id} className="flex justify-between flex-row gap-4 mt-4 border border-gray-100 p-3 rounded-md w-80">
     <div>
       <p className="text-lg font-semibold">{todo.title}</p>
@@ -91,7 +103,8 @@ export default function Home() {
     <div className="flex flex-col gap-2 justify-start items-start ">
       <button  onClick={() => handleEdit(todo.id, todo.title)} className="text-yellow-500 cursor-pointer">Edit</button>
       <button className="text-red-500 cursor-pointer" onClick={() => handleDelete(todo.id)}>Delete</button>
-      <button className="text-green-500 cursor-pointer">Done</button>
+      {todo.status === "Todo" && <button className="text-blue-500 cursor-pointer" onClick={()=> handleStatus(todo.id, "In Progress")}>Start</button>}
+      {todo.status === "In Progress" && <button className="text-green-500 cursor-pointer" onClick={()=> handleStatus(todo.id, "Done")}>Done</button>}
     </div>
     </div>
     ))}

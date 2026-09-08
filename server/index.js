@@ -25,7 +25,7 @@ db.connect((err)=>{
 app.post('/new-task', (req, res) => {
     console.log(req.body);
     const q = "insert into tasks (title, created_at, status) values (?,?,?)";
-    db.query(q, [req.body.task, new Date(), 'Active'], (err, result) => {
+    db.query(q, [req.body.task, new Date(), 'Todo'], (err, result) => {
         if(err){
             console.log("error inserting task: ", err);
           
@@ -113,6 +113,32 @@ app.post('/delete-task', (req, res) => {
         }
     })
 })
+
+app.post('/update-status', (req, res) => {
+    console.log(req.body);
+    const q = "update tasks set status = ? where id = ?"; 
+    db.query(q,  [req.body.status, req.body.id], (err, result)=> {
+        if(err){
+            console.log("error updating task status: ", err);
+          
+        } else {
+            console.log("task status updated successfully");
+           
+            db.query("select * from tasks", (err, result) => {
+                if(err){
+                    console.log("error reading tasks: ", err);
+                    
+                } else {
+                    console.log("tasks read successfully");
+             
+                    res.send(result);
+                }
+            })
+ 
+        }
+    })
+}
+)
 app.listen(5000, () => {
   console.log('Server is running on port 5000');
 });
